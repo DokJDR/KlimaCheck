@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: KlimaCheck Wolfratshausen
- * Description: Admin page to manage Climate Check candidate responses for Wolfratshausen.
+ * Description: Admin-Seite zur Verwaltung der KlimaCheck-Kandidatenantworten für Wolfratshausen.
  * Version: 1.0.0
  * Author: KlimaCheck Initiative
  * Text Domain: klimacheck
@@ -15,8 +15,8 @@ define( 'KLIMACHECK_OPTION_KEY', 'wolfratshausen_klima_data' );
 define( 'KLIMACHECK_NONCE_ACTION', 'klimacheck_save' );
 
 /**
- * Return the 10 default questions. Admins can override the question text
- * and the "Why is this important?" explanation via the settings page.
+ * Die 10 Standardfragen zurückgeben. Admins können den Fragentext
+ * und die "Warum ist das wichtig?"-Erklärung über die Einstellungen ändern.
  */
 function klimacheck_default_questions() {
     return array(
@@ -63,7 +63,7 @@ function klimacheck_default_questions() {
     );
 }
 
-/** Load persisted data (questions + candidates). */
+/** Gespeicherte Daten laden (Fragen + Kandidaten). */
 function klimacheck_get_data() {
     $data = get_option( KLIMACHECK_OPTION_KEY, null );
     if ( ! is_array( $data ) ) {
@@ -78,18 +78,18 @@ function klimacheck_get_data() {
     return $data;
 }
 
-/** Persist data. */
+/** Daten speichern. */
 function klimacheck_save_data( $data ) {
     update_option( KLIMACHECK_OPTION_KEY, $data, false );
 }
 
-/** Generate a unique token for candidate review links. */
+/** Eindeutigen Token für Kandidaten-Review-Links generieren. */
 function klimacheck_generate_token() {
     return bin2hex( random_bytes( 16 ) );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Admin menu                                                         */
+/*  Admin-Menü                                                         */
 /* ------------------------------------------------------------------ */
 add_action( 'admin_menu', 'klimacheck_register_menu' );
 
@@ -106,8 +106,8 @@ function klimacheck_register_menu() {
 
     add_submenu_page(
         'klimacheck',
-        'Overview',
-        'Overview',
+        'Übersicht',
+        'Übersicht',
         'manage_options',
         'klimacheck',
         'klimacheck_page_overview'
@@ -115,8 +115,8 @@ function klimacheck_register_menu() {
 
     add_submenu_page(
         'klimacheck',
-        'Questions',
-        'Questions',
+        'Fragen',
+        'Fragen',
         'manage_options',
         'klimacheck-questions',
         'klimacheck_page_questions'
@@ -124,18 +124,18 @@ function klimacheck_register_menu() {
 
     add_submenu_page(
         'klimacheck',
-        'Candidate',
-        'Add / Edit Candidate',
+        'Kandidat',
+        'Kandidat hinzufügen / bearbeiten',
         'manage_options',
         'klimacheck-candidate',
         'klimacheck_page_candidate'
     );
 
-    // Hidden page for candidate review (accessible via token link).
+    // Versteckte Seite für Kandidaten-Vorschau (über Token-Link erreichbar).
     add_submenu_page(
-        null, // hidden
-        'Candidate Review',
-        'Candidate Review',
+        null, // versteckt
+        'Kandidaten-Vorschau',
+        'Kandidaten-Vorschau',
         'manage_options',
         'klimacheck-review',
         'klimacheck_page_review_admin'
@@ -143,7 +143,7 @@ function klimacheck_register_menu() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Admin styles                                                       */
+/*  Admin-Styles                                                       */
 /* ------------------------------------------------------------------ */
 add_action( 'admin_head', 'klimacheck_admin_styles' );
 
@@ -174,17 +174,21 @@ function klimacheck_admin_styles() {
         .klimacheck-actions button { white-space: nowrap; }
         .klimacheck-review-link { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
         .klimacheck-review-link input[type="text"] { width: 420px; font-size: 12px; }
+        .klimacheck-candidate-photo { max-width: 80px; max-height: 80px; border-radius: 4px; margin-right: 10px; vertical-align: middle; }
+        .klimacheck-candidate-photo-preview { max-width: 150px; max-height: 150px; border-radius: 4px; margin-top: 8px; display: block; }
+        .klimacheck-full-statement { margin-top: 10px; }
+        .klimacheck-full-statement label { font-weight: 600; display: block; margin-bottom: 4px; }
     </style>
     <?php
 }
 
 /* ------------------------------------------------------------------ */
-/*  Page: Overview (table of candidates & question status)             */
+/*  Seite: Übersicht (Tabelle der Kandidaten & Fragenstatus)           */
 /* ------------------------------------------------------------------ */
 function klimacheck_page_overview() {
     $data = klimacheck_get_data();
 
-    // Handle delete action.
+    // Löschaktion verarbeiten.
     if ( isset( $_GET['action'], $_GET['candidate_id'], $_GET['_wpnonce'] )
          && $_GET['action'] === 'delete'
          && wp_verify_nonce( $_GET['_wpnonce'], 'klimacheck_delete_' . $_GET['candidate_id'] )
@@ -194,11 +198,11 @@ function klimacheck_page_overview() {
             unset( $data['candidates'][ $cid ] );
             klimacheck_save_data( $data );
             $data = klimacheck_get_data();
-            echo '<div class="notice notice-success"><p>Candidate deleted.</p></div>';
+            echo '<div class="notice notice-success"><p>Kandidat gelöscht.</p></div>';
         }
     }
 
-    // Handle token regeneration.
+    // Token-Erneuerung verarbeiten.
     if ( isset( $_GET['action'], $_GET['candidate_id'], $_GET['_wpnonce'] )
          && $_GET['action'] === 'regenerate_token'
          && wp_verify_nonce( $_GET['_wpnonce'], 'klimacheck_regen_' . $_GET['candidate_id'] )
@@ -208,7 +212,7 @@ function klimacheck_page_overview() {
             $data['candidates'][ $cid ]['token'] = klimacheck_generate_token();
             klimacheck_save_data( $data );
             $data = klimacheck_get_data();
-            echo '<div class="notice notice-success"><p>Review link regenerated.</p></div>';
+            echo '<div class="notice notice-success"><p>Vorschau-Link erneuert.</p></div>';
         }
     }
 
@@ -217,30 +221,35 @@ function klimacheck_page_overview() {
 
     ?>
     <div class="wrap klimacheck-wrap">
-        <h1>KlimaCheck &mdash; Candidate Overview</h1>
+        <h1>KlimaCheck &mdash; Kandidatenübersicht</h1>
         <p>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-candidate' ) ); ?>" class="button button-primary">+ Add Candidate</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-questions' ) ); ?>" class="button">Manage Questions</a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-candidate' ) ); ?>" class="button button-primary">+ Kandidat hinzufügen</a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-questions' ) ); ?>" class="button">Fragen verwalten</a>
         </p>
 
         <?php if ( empty( $candidates ) ) : ?>
-            <p>No candidates added yet.</p>
+            <p>Noch keine Kandidaten hinzugefügt.</p>
         <?php else : ?>
             <table class="klimacheck-table">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Party</th>
+                        <th>Partei</th>
                         <?php for ( $q = 1; $q <= 10; $q++ ) : ?>
-                            <th title="<?php echo esc_attr( $questions[ $q ]['question'] ); ?>">Q<?php echo $q; ?></th>
+                            <th title="<?php echo esc_attr( $questions[ $q ]['question'] ); ?>">F<?php echo $q; ?></th>
                         <?php endfor; ?>
-                        <th>Actions</th>
+                        <th>Aktionen</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ( $candidates as $cid => $c ) : ?>
                         <tr>
-                            <td><?php echo esc_html( $c['name'] ); ?></td>
+                            <td>
+                                <?php if ( ! empty( $c['photo_url'] ) ) : ?>
+                                    <img src="<?php echo esc_url( $c['photo_url'] ); ?>" alt="<?php echo esc_attr( $c['name'] ); ?>" class="klimacheck-candidate-photo" />
+                                <?php endif; ?>
+                                <?php echo esc_html( $c['name'] ); ?>
+                            </td>
                             <td><?php echo esc_html( $c['party'] ); ?></td>
                             <?php for ( $q = 1; $q <= 10; $q++ ) :
                                 $answer = isset( $c['responses'][ $q ]['answer'] ) ? $c['responses'][ $q ]['answer'] : '';
@@ -248,13 +257,13 @@ function klimacheck_page_overview() {
                                 if ( $answer && $text ) {
                                     if ( $answer === 'yes' ) {
                                         $cls   = 'klimacheck-status-yes';
-                                        $label = 'Yes';
+                                        $label = 'Ja';
                                     } elseif ( $answer === 'partially' ) {
                                         $cls   = 'klimacheck-status-partially';
-                                        $label = 'Partially';
+                                        $label = 'Teilweise';
                                     } else {
                                         $cls   = 'klimacheck-status-no';
-                                        $label = 'No';
+                                        $label = 'Nein';
                                     }
                                     echo '<td class="' . $cls . '" title="' . esc_attr( $text ) . '">' . $label . '</td>';
                                 } else {
@@ -263,9 +272,9 @@ function klimacheck_page_overview() {
                             endfor; ?>
                             <td>
                                 <div class="klimacheck-actions">
-                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-candidate&candidate_id=' . $cid ) ); ?>" class="button button-small">Edit</a>
-                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-review&candidate_id=' . $cid ) ); ?>" class="button button-small">Preview</a>
-                                    <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=klimacheck&action=delete&candidate_id=' . $cid ), 'klimacheck_delete_' . $cid ) ); ?>" class="button button-small" style="color:#d63638;" onclick="return confirm('Delete this candidate?');">Delete</a>
+                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-candidate&candidate_id=' . $cid ) ); ?>" class="button button-small">Bearbeiten</a>
+                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck-review&candidate_id=' . $cid ) ); ?>" class="button button-small">Vorschau</a>
+                                    <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=klimacheck&action=delete&candidate_id=' . $cid ), 'klimacheck_delete_' . $cid ) ); ?>" class="button button-small" style="color:#d63638;" onclick="return confirm('Diesen Kandidaten löschen?');">Löschen</a>
                                 </div>
                                 <?php
                                 $token     = isset( $c['token'] ) ? $c['token'] : '';
@@ -277,7 +286,7 @@ function klimacheck_page_overview() {
                                 <?php if ( $review_url ) : ?>
                                     <div class="klimacheck-review-link">
                                         <input type="text" readonly value="<?php echo esc_attr( $review_url ); ?>" onclick="this.select();" />
-                                        <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=klimacheck&action=regenerate_token&candidate_id=' . $cid ), 'klimacheck_regen_' . $cid ) ); ?>" class="button button-small" title="Generate new link">&#x21bb;</a>
+                                        <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=klimacheck&action=regenerate_token&candidate_id=' . $cid ), 'klimacheck_regen_' . $cid ) ); ?>" class="button button-small" title="Neuen Link generieren">&#x21bb;</a>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -285,22 +294,22 @@ function klimacheck_page_overview() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="description">Hover over a status cell to see the candidate's statement. The review link below each candidate can be sent to them &mdash; it only shows <strong>their own</strong> answers.</p>
+            <p class="description">Bewegen Sie die Maus über eine Statuszelle, um die Stellungnahme des Kandidaten zu sehen. Der Vorschau-Link unter jedem Kandidaten kann an diesen gesendet werden &mdash; er zeigt nur <strong>dessen eigene</strong> Antworten.</p>
         <?php endif; ?>
     </div>
     <?php
 }
 
 /* ------------------------------------------------------------------ */
-/*  Page: Manage Questions                                             */
+/*  Seite: Fragen verwalten                                            */
 /* ------------------------------------------------------------------ */
 function klimacheck_page_questions() {
     $data = klimacheck_get_data();
 
-    // Save handler.
+    // Speichern verarbeiten.
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['klimacheck_questions_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['klimacheck_questions_nonce'], 'klimacheck_save_questions' ) ) {
-            wp_die( 'Security check failed.' );
+            wp_die( 'Sicherheitsüberprüfung fehlgeschlagen.' );
         }
 
         for ( $q = 1; $q <= 10; $q++ ) {
@@ -308,21 +317,21 @@ function klimacheck_page_questions() {
             $data['questions'][ $q ]['why']      = sanitize_textarea_field( $_POST['why_' . $q] ?? '' );
         }
         klimacheck_save_data( $data );
-        echo '<div class="notice notice-success"><p>Questions saved.</p></div>';
+        echo '<div class="notice notice-success"><p>Fragen gespeichert.</p></div>';
     }
 
     $questions = $data['questions'];
     ?>
     <div class="wrap klimacheck-wrap">
-        <h1>KlimaCheck &mdash; Manage Questions</h1>
+        <h1>KlimaCheck &mdash; Fragen verwalten</h1>
         <form method="post">
             <?php wp_nonce_field( 'klimacheck_save_questions', 'klimacheck_questions_nonce' ); ?>
             <table class="klimacheck-table">
                 <thead>
                     <tr>
                         <th style="width:40px">#</th>
-                        <th>Question</th>
-                        <th>Why is this important?</th>
+                        <th>Frage</th>
+                        <th>Warum ist das wichtig?</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -330,23 +339,23 @@ function klimacheck_page_questions() {
                         <tr>
                             <td><?php echo $q; ?></td>
                             <td>
-                                <input type="text" name="question_<?php echo $q; ?>" value="<?php echo esc_attr( $questions[ $q ]['question'] ); ?>" class="regular-text" style="width:100%;" />
+                                <textarea name="question_<?php echo $q; ?>" rows="3" style="width:100%;"><?php echo esc_textarea( $questions[ $q ]['question'] ); ?></textarea>
                             </td>
                             <td>
-                                <textarea name="why_<?php echo $q; ?>" rows="3" style="width:100%;"><?php echo esc_textarea( $questions[ $q ]['why'] ); ?></textarea>
+                                <textarea name="why_<?php echo $q; ?>" rows="5" style="width:100%;"><?php echo esc_textarea( $questions[ $q ]['why'] ); ?></textarea>
                             </td>
                         </tr>
                     <?php endfor; ?>
                 </tbody>
             </table>
-            <p><button type="submit" class="button button-primary">Save Questions</button></p>
+            <p><button type="submit" class="button button-primary">Fragen speichern</button></p>
         </form>
     </div>
     <?php
 }
 
 /* ------------------------------------------------------------------ */
-/*  Page: Add / Edit Candidate                                         */
+/*  Seite: Kandidat hinzufügen / bearbeiten                            */
 /* ------------------------------------------------------------------ */
 function klimacheck_page_candidate() {
     $data        = klimacheck_get_data();
@@ -354,25 +363,33 @@ function klimacheck_page_candidate() {
     $candidate_id = isset( $_GET['candidate_id'] ) ? sanitize_text_field( $_GET['candidate_id'] ) : '';
     $is_edit     = $candidate_id && isset( $data['candidates'][ $candidate_id ] );
     $candidate   = $is_edit ? $data['candidates'][ $candidate_id ] : array(
-        'name'      => '',
-        'party'     => '',
-        'responses' => array(),
-        'token'     => klimacheck_generate_token(),
+        'name'           => '',
+        'party'          => '',
+        'photo_url'      => '',
+        'full_statement' => '',
+        'responses'      => array(),
+        'token'          => klimacheck_generate_token(),
     );
+
+    // Ensure fields exist for older candidates.
+    if ( ! isset( $candidate['photo_url'] ) )      $candidate['photo_url'] = '';
+    if ( ! isset( $candidate['full_statement'] ) )  $candidate['full_statement'] = '';
 
     $errors = array();
 
-    // Save handler.
+    // Speichern verarbeiten.
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['klimacheck_candidate_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['klimacheck_candidate_nonce'], 'klimacheck_save_candidate' ) ) {
-            wp_die( 'Security check failed.' );
+            wp_die( 'Sicherheitsüberprüfung fehlgeschlagen.' );
         }
 
-        $candidate['name']  = sanitize_text_field( $_POST['candidate_name'] ?? '' );
-        $candidate['party'] = sanitize_text_field( $_POST['candidate_party'] ?? '' );
+        $candidate['name']           = sanitize_text_field( $_POST['candidate_name'] ?? '' );
+        $candidate['party']          = sanitize_text_field( $_POST['candidate_party'] ?? '' );
+        $candidate['photo_url']      = esc_url_raw( $_POST['candidate_photo_url'] ?? '' );
+        $candidate['full_statement'] = wp_kses_post( $_POST['candidate_full_statement'] ?? '' );
 
         if ( empty( $candidate['name'] ) ) {
-            $errors[] = 'Candidate name is required.';
+            $errors[] = 'Der Name des Kandidaten ist erforderlich.';
         }
 
         for ( $q = 1; $q <= 10; $q++ ) {
@@ -384,7 +401,7 @@ function klimacheck_page_candidate() {
             }
 
             if ( $answer && ! $text ) {
-                $errors[] = 'Question ' . $q . ': A statement is required when a position is selected ("because…").';
+                $errors[] = 'Frage ' . $q . ': Eine Stellungnahme ist erforderlich, wenn eine Position gewählt wurde („weil …").';
             }
 
             $candidate['responses'][ $q ] = array(
@@ -403,16 +420,16 @@ function klimacheck_page_candidate() {
             $data['candidates'][ $candidate_id ] = $candidate;
             klimacheck_save_data( $data );
 
-            echo '<div class="notice notice-success"><p>Candidate saved. <a href="' . esc_url( admin_url( 'admin.php?page=klimacheck' ) ) . '">Back to overview</a></p></div>';
-            // Refresh candidate data after save.
+            echo '<div class="notice notice-success"><p>Kandidat gespeichert. <a href="' . esc_url( admin_url( 'admin.php?page=klimacheck' ) ) . '">Zurück zur Übersicht</a></p></div>';
+            // Kandidatendaten nach dem Speichern aktualisieren.
             $is_edit = true;
         }
     }
 
     ?>
     <div class="wrap klimacheck-wrap">
-        <h1>KlimaCheck &mdash; <?php echo $is_edit ? 'Edit' : 'Add'; ?> Candidate</h1>
-        <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>">&larr; Back to overview</a></p>
+        <h1>KlimaCheck &mdash; Kandidat <?php echo $is_edit ? 'bearbeiten' : 'hinzufügen'; ?></h1>
+        <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>">&larr; Zurück zur Übersicht</a></p>
 
         <?php if ( ! empty( $errors ) ) : ?>
             <div class="notice notice-error">
@@ -433,12 +450,40 @@ function klimacheck_page_candidate() {
                     <td><input type="text" id="candidate_name" name="candidate_name" value="<?php echo esc_attr( $candidate['name'] ); ?>" class="regular-text" required /></td>
                 </tr>
                 <tr>
-                    <th><label for="candidate_party">Party</label></th>
+                    <th><label for="candidate_party">Partei</label></th>
                     <td><input type="text" id="candidate_party" name="candidate_party" value="<?php echo esc_attr( $candidate['party'] ); ?>" class="regular-text" /></td>
+                </tr>
+                <tr>
+                    <th><label for="candidate_photo_url">Foto (URL)</label></th>
+                    <td>
+                        <input type="url" id="candidate_photo_url" name="candidate_photo_url" value="<?php echo esc_attr( $candidate['photo_url'] ); ?>" class="regular-text" placeholder="https://beispiel.de/foto.jpg" />
+                        <p class="description">URL zu einem Kandidatenfoto (optional).</p>
+                        <?php if ( ! empty( $candidate['photo_url'] ) ) : ?>
+                            <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="Kandidatenfoto" class="klimacheck-candidate-photo-preview" />
+                        <?php endif; ?>
+                    </td>
                 </tr>
             </table>
 
-            <h2>Responses</h2>
+            <h2>Ausführliche Stellungnahme</h2>
+            <div class="klimacheck-full-statement">
+                <label for="candidate_full_statement">Hier kann eine ausführliche Stellungnahme des Kandidaten eingegeben werden (HTML erlaubt):</label>
+                <?php
+                wp_editor(
+                    $candidate['full_statement'],
+                    'candidate_full_statement',
+                    array(
+                        'textarea_name' => 'candidate_full_statement',
+                        'textarea_rows' => 10,
+                        'media_buttons' => false,
+                        'teeny'         => true,
+                        'quicktags'     => true,
+                    )
+                );
+                ?>
+            </div>
+
+            <h2>Antworten</h2>
 
             <?php for ( $q = 1; $q <= 10; $q++ ) :
                 $resp   = isset( $candidate['responses'][ $q ] ) ? $candidate['responses'][ $q ] : array( 'answer' => '', 'text' => '' );
@@ -446,40 +491,40 @@ function klimacheck_page_candidate() {
                 $text   = $resp['text'];
             ?>
                 <div class="klimacheck-question-block">
-                    <h3>Q<?php echo $q; ?>: <?php echo esc_html( $questions[ $q ]['question'] ); ?></h3>
+                    <h3>F<?php echo $q; ?>: <?php echo esc_html( $questions[ $q ]['question'] ); ?></h3>
                     <?php if ( ! empty( $questions[ $q ]['why'] ) ) : ?>
-                        <p><em>Why is this important?</em> <?php echo esc_html( $questions[ $q ]['why'] ); ?></p>
+                        <p><em>Warum ist das wichtig?</em> <?php echo esc_html( $questions[ $q ]['why'] ); ?></p>
                     <?php endif; ?>
 
                     <div class="klimacheck-radio-group">
                         <label>
                             <input type="radio" name="answer_<?php echo $q; ?>" value="yes" <?php checked( $answer, 'yes' ); ?> />
-                            Yes, because&hellip;
+                            Ja, weil&hellip;
                         </label>
                         <label>
                             <input type="radio" name="answer_<?php echo $q; ?>" value="partially" <?php checked( $answer, 'partially' ); ?> />
-                            Partially, because&hellip;
+                            Teilweise, weil&hellip;
                         </label>
                         <label>
                             <input type="radio" name="answer_<?php echo $q; ?>" value="no" <?php checked( $answer, 'no' ); ?> />
-                            No, because&hellip;
+                            Nein, weil&hellip;
                         </label>
                         <label>
                             <input type="radio" name="answer_<?php echo $q; ?>" value="" <?php checked( $answer, '' ); ?> />
-                            <span class="klimacheck-status-missing">(not answered)</span>
+                            <span class="klimacheck-status-missing">(nicht beantwortet)</span>
                         </label>
                     </div>
 
                     <p style="margin-top:8px;">
-                        <textarea name="text_<?php echo $q; ?>" rows="3" maxlength="500" style="width:100%;" placeholder="Context / Statement (max 500 characters)"><?php echo esc_textarea( $text ); ?></textarea>
+                        <textarea name="text_<?php echo $q; ?>" rows="3" maxlength="500" style="width:100%;" placeholder="Begründung / Stellungnahme (max. 500 Zeichen)"><?php echo esc_textarea( $text ); ?></textarea>
                         <span class="klimacheck-char-count"><span class="klimacheck-count-<?php echo $q; ?>"><?php echo strlen( $text ); ?></span> / 500</span>
                     </p>
                 </div>
             <?php endfor; ?>
 
             <p>
-                <button type="submit" class="button button-primary">Save Candidate</button>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>" class="button">Cancel</a>
+                <button type="submit" class="button button-primary">Kandidat speichern</button>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>" class="button">Abbrechen</a>
             </p>
         </form>
     </div>
@@ -499,13 +544,13 @@ function klimacheck_page_candidate() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Page: Admin preview of single candidate (in WP-Admin)              */
+/*  Seite: Admin-Vorschau eines einzelnen Kandidaten (im WP-Admin)     */
 /* ------------------------------------------------------------------ */
 function klimacheck_page_review_admin() {
     $data         = klimacheck_get_data();
     $candidate_id = isset( $_GET['candidate_id'] ) ? sanitize_text_field( $_GET['candidate_id'] ) : '';
     if ( ! $candidate_id || ! isset( $data['candidates'][ $candidate_id ] ) ) {
-        echo '<div class="wrap"><h1>Candidate not found.</h1></div>';
+        echo '<div class="wrap"><h1>Kandidat nicht gefunden.</h1></div>';
         return;
     }
 
@@ -516,7 +561,7 @@ function klimacheck_page_review_admin() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Front-end: token-based candidate review page                       */
+/*  Frontend: Token-basierte Kandidaten-Vorschauseite                  */
 /* ------------------------------------------------------------------ */
 add_action( 'template_redirect', 'klimacheck_frontend_review' );
 
@@ -537,34 +582,46 @@ function klimacheck_frontend_review() {
     }
 
     if ( ! $found_candidate ) {
-        wp_die( 'Invalid or expired review link.', 'KlimaCheck', array( 'response' => 403 ) );
+        wp_die( 'Ungültiger oder abgelaufener Vorschau-Link.', 'KlimaCheck', array( 'response' => 403 ) );
     }
 
-    // Render a standalone HTML page (no other candidate data exposed).
+    // Eigenständige HTML-Seite rendern (keine anderen Kandidatendaten sichtbar).
     klimacheck_render_review_frontend( $found_candidate, $data['questions'] );
     exit;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Shared review renderer                                             */
+/*  Gemeinsamer Review-Renderer                                        */
 /* ------------------------------------------------------------------ */
 function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
     $wrap_class = $is_admin ? 'wrap klimacheck-wrap' : '';
     ?>
     <div class="<?php echo esc_attr( $wrap_class ); ?>">
-        <h1>KlimaCheck &mdash; Review for <?php echo esc_html( $candidate['name'] ); ?></h1>
+        <h1>
+            <?php if ( ! empty( $candidate['photo_url'] ) ) : ?>
+                <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="<?php echo esc_attr( $candidate['name'] ); ?>" style="max-width:60px;max-height:60px;border-radius:4px;vertical-align:middle;margin-right:10px;" />
+            <?php endif; ?>
+            KlimaCheck &mdash; Vorschau für <?php echo esc_html( $candidate['name'] ); ?>
+        </h1>
         <?php if ( $is_admin ) : ?>
-            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>">&larr; Back to overview</a></p>
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=klimacheck' ) ); ?>">&larr; Zurück zur Übersicht</a></p>
         <?php endif; ?>
-        <p><strong>Party:</strong> <?php echo esc_html( $candidate['party'] ); ?></p>
+        <p><strong>Partei:</strong> <?php echo esc_html( $candidate['party'] ); ?></p>
+
+        <?php if ( ! empty( $candidate['full_statement'] ) ) : ?>
+            <div style="background:#f9f9f9;border:1px solid #ddd;padding:14px 18px;margin-bottom:18px;border-radius:4px;">
+                <h3 style="margin-top:0;">Stellungnahme</h3>
+                <?php echo wp_kses_post( $candidate['full_statement'] ); ?>
+            </div>
+        <?php endif; ?>
 
         <table class="klimacheck-table" style="max-width:900px;">
             <thead>
                 <tr>
                     <th style="width:40px">#</th>
-                    <th>Question</th>
+                    <th>Frage</th>
                     <th style="width:100px">Position</th>
-                    <th>Statement</th>
+                    <th>Stellungnahme</th>
                 </tr>
             </thead>
             <tbody>
@@ -575,13 +632,13 @@ function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
 
                     if ( $answer === 'yes' ) {
                         $cls   = 'klimacheck-status-yes';
-                        $label = 'Yes';
+                        $label = 'Ja';
                     } elseif ( $answer === 'partially' ) {
                         $cls   = 'klimacheck-status-partially';
-                        $label = 'Partially';
+                        $label = 'Teilweise';
                     } elseif ( $answer === 'no' ) {
                         $cls   = 'klimacheck-status-no';
-                        $label = 'No';
+                        $label = 'Nein';
                     } else {
                         $cls   = 'klimacheck-status-missing';
                         $label = '—';
@@ -589,12 +646,7 @@ function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
                 ?>
                     <tr>
                         <td><?php echo $q; ?></td>
-                        <td>
-                            <?php echo esc_html( $questions[ $q ]['question'] ); ?>
-                            <?php if ( ! empty( $questions[ $q ]['why'] ) ) : ?>
-                                <br><small><em>Why important: <?php echo esc_html( $questions[ $q ]['why'] ); ?></em></small>
-                            <?php endif; ?>
-                        </td>
+                        <td><?php echo esc_html( $questions[ $q ]['question'] ); ?></td>
                         <td class="<?php echo $cls; ?>"><?php echo $label; ?></td>
                         <td><?php echo esc_html( $text ); ?></td>
                     </tr>
@@ -605,7 +657,7 @@ function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
     <?php
 }
 
-/** Render a standalone front-end review page (no WP admin chrome). */
+/** Eigenständige Frontend-Vorschauseite rendern (ohne WP-Admin-Rahmen). */
 function klimacheck_render_review_frontend( $candidate, $questions ) {
     ?>
     <!DOCTYPE html>
@@ -613,11 +665,12 @@ function klimacheck_render_review_frontend( $candidate, $questions ) {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>KlimaCheck &mdash; Review for <?php echo esc_attr( $candidate['name'] ); ?></title>
+        <title>KlimaCheck &mdash; Vorschau für <?php echo esc_attr( $candidate['name'] ); ?></title>
         <style>
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; line-height: 1.6; color: #1d2327; padding: 30px 20px; max-width: 900px; margin: 0 auto; }
             h1 { margin-bottom: 8px; font-size: 24px; }
+            h3 { margin-bottom: 8px; }
             p { margin-bottom: 12px; }
             .klimacheck-table { border-collapse: collapse; width: 100%; margin-top: 16px; }
             .klimacheck-table th, .klimacheck-table td { border: 1px solid #ccd0d4; padding: 10px 12px; text-align: left; vertical-align: top; }
@@ -632,7 +685,7 @@ function klimacheck_render_review_frontend( $candidate, $questions ) {
     </head>
     <body>
         <?php klimacheck_render_review( $candidate, $questions, false ); ?>
-        <p class="footer">This page shows only your personal responses. If you have corrections, please contact the KlimaCheck initiative.</p>
+        <p class="footer">Diese Seite zeigt nur Ihre persönlichen Antworten. Bei Korrekturbedarf wenden Sie sich bitte an die KlimaCheck-Initiative.</p>
     </body>
     </html>
     <?php
