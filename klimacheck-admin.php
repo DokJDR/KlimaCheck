@@ -476,8 +476,12 @@ function klimacheck_page_candidate() {
                         'textarea_name' => 'candidate_full_statement',
                         'textarea_rows' => 10,
                         'media_buttons' => false,
-                        'teeny'         => true,
+                        'teeny'         => false,
                         'quicktags'     => true,
+                        'wpautop'       => false,
+                        'tinymce'       => array(
+                            'wpautop' => false,
+                        ),
                     )
                 );
                 ?>
