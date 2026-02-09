@@ -167,13 +167,13 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-comparison th,.kc-comparison td{border:1px solid #e5e7eb;padding:10px 12px;text-align:center;vertical-align:top;font-size:14px}
     .kc-comparison thead th{background:#f9fafb;font-weight:600;position:sticky;top:0;z-index:1}
     .kc-comparison .kc-comp-q-cell{text-align:left;font-weight:500;background:#fff;min-width:180px}
-    .kc-comparison .kc-comp-cand-header{padding:12px 8px}
+    .kc-comparison .kc-comp-cand-header{padding:12px 8px;min-width:100px}
     .kc-comparison .kc-comp-cand-photo{width:44px;height:44px;border-radius:50%;object-fit:cover;margin:0 auto 6px;display:block;border:2px solid #e5e7eb}
     .kc-comparison .kc-comp-cand-photo-placeholder{width:44px;height:44px;border-radius:50%;background:#e5e7eb;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#9ca3af}
-    .kc-comparison .kc-comp-cand-name{font-weight:600;font-size:13px;color:#111827}
+    .kc-comparison .kc-comp-cand-name{font-weight:600;font-size:13px;color:#111827;word-wrap:break-word;overflow-wrap:break-word}
     .kc-comparison .kc-comp-cand-party{font-size:11px;color:#6b7280}
     .kc-comparison .kc-comp-answer{font-size:12px}
-    .kc-comparison .kc-comp-statement-text{font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4;max-height:60px;overflow:hidden;text-overflow:ellipsis}
+    .kc-comparison .kc-comp-statement-text{font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
     .kc-comp-statement-btn{display:inline-block;margin-top:8px;font-size:13px;color:#16a34a;cursor:pointer;text-decoration:underline;font-weight:500;background:none;border:none;padding:0}
     .kc-comp-statement-btn:hover{color:#15803d}
 
@@ -247,6 +247,7 @@ function klimacheck_shortcode_render( $atts ) {
         .kc-floating-tooltip{width:240px;font-size:12px}
         .kc-comparison table{min-width:auto}
         .kc-comparison th,.kc-comparison td{padding:8px 6px;font-size:12px}
+        .kc-comparison .kc-comp-cand-header{min-width:80px}
         .kc-comparison .kc-comp-q-cell{min-width:120px}
         .kc-view-toggle{flex-direction:column;align-items:center}
     }
