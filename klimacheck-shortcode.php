@@ -185,6 +185,38 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-modal h2{margin:0 0 6px;font-size:20px}
     .kc-modal .kc-modal-party{font-size:14px;color:#6b7280;margin-bottom:16px}
     .kc-modal .kc-modal-body{font-size:15px;line-height:1.7;color:#374151}
+    .kc-modal .kc-modal-body p{margin:0 0 12px}
+    .kc-modal .kc-modal-body p:last-child{margin-bottom:0}
+    .kc-modal .kc-modal-body br{display:block;content:"";margin:4px 0}
+    .kc-modal .kc-modal-body ul,.kc-modal .kc-modal-body ol{margin:0 0 12px 20px;padding:0}
+    .kc-modal .kc-modal-body li{margin-bottom:4px}
+
+    /* Comparison: tooltip on hover for truncated text */
+    .kc-comp-statement-text{position:relative;cursor:default}
+    .kc-comp-tooltip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1d2327;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;width:280px;max-height:240px;overflow-y:auto;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2);text-align:left;pointer-events:auto}
+    .kc-comp-tooltip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1d2327}
+    .kc-comp-statement-text:hover .kc-comp-tooltip{display:block}
+
+    /* Kandidatenübersicht: card layout for candidates */
+    .kc-comp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+    .kc-comp-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .kc-comp-card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e5e7eb}
+    .kc-comp-card-photo{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;flex-shrink:0}
+    .kc-comp-card-photo-placeholder{width:48px;height:48px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:20px;color:#9ca3af;flex-shrink:0}
+    .kc-comp-card-info .kc-comp-card-name{font-weight:600;font-size:15px;color:#111827}
+    .kc-comp-card-info .kc-comp-card-party{font-size:12px;color:#6b7280}
+    .kc-comp-card-questions{display:flex;flex-direction:column;gap:10px}
+    .kc-comp-card-q{display:flex;flex-direction:column;gap:4px}
+    .kc-comp-card-q-label{font-size:13px;font-weight:500;color:#374151;line-height:1.4}
+    .kc-comp-card-q-answer{display:flex;align-items:flex-start;gap:8px}
+    .kc-comp-card-q-text{font-size:12px;color:#6b7280;line-height:1.4}
+    .kc-comp-card-footer{margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb}
+
+    /* View toggle */
+    .kc-view-toggle{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+    .kc-view-toggle button{padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:#374151;transition:all .15s}
+    .kc-view-toggle button.active{background:#16a34a;color:#fff;border-color:#16a34a}
+    .kc-view-toggle button:hover:not(.active){background:#f3f4f6}
 
     /* Mobile */
     @media(max-width:600px){
@@ -196,6 +228,26 @@ function klimacheck_shortcode_render( $atts ) {
         .kc-result-photo,.kc-result-photo-placeholder{width:42px;height:42px}
         .kc-nav{flex-direction:column}
         .kc-btn{width:100%;text-align:center}
+        .kc-intro h1{font-size:22px}
+        .kc-intro p{font-size:14px}
+        .kc-card h2{font-size:17px}
+        .kc-results h2{font-size:20px}
+        .kc-result-rank{font-size:18px;min-width:28px}
+        .kc-result-name{font-size:15px}
+        .kc-result-party{font-size:12px}
+        .kc-result-score{min-width:60px}
+        .kc-result-chevron{font-size:16px}
+        .kc-detail-inner{padding:12px 14px}
+        .kc-detail-q{padding:10px 0}
+        .kc-modal{padding:20px 16px;margin:10px;max-height:90vh}
+        .kc-modal h2{font-size:18px}
+        .kc-comp-cards{grid-template-columns:1fr}
+        .kc-comp-tooltip{width:220px;left:0;transform:none}
+        .kc-comp-tooltip::after{left:20px;transform:none}
+        .kc-comparison table{min-width:auto}
+        .kc-comparison th,.kc-comparison td{padding:8px 6px;font-size:12px}
+        .kc-comparison .kc-comp-q-cell{min-width:120px}
+        .kc-view-toggle{flex-direction:column;align-items:center}
     }
     </style>
 
@@ -559,17 +611,13 @@ function klimacheck_shortcode_render( $atts ) {
         }
 
         /* ── Render: Detailed Comparison (all candidates side by side) ── */
-        function renderComparison() {
-            var numCands = candidates.length;
+        var compViewMode = 'cards'; // 'cards' or 'table'
 
-            var html =
-                '<div class="kc-results">' +
-                '<h2>Kandidaten\u00fcbersicht</h2>' +
-                '<p class="kc-results-subtitle">Alle Kandidat:innen und ihre Positionen im direkten Vergleich</p>' +
-                '<div class="kc-comparison"><table>' +
+        function renderComparisonTable() {
+            var numCands = candidates.length;
+            var html = '<div class="kc-comparison"><table>' +
                 '<thead><tr><th class="kc-comp-q-cell">Frage</th>';
 
-            // Header row with candidate names/photos
             for (var ci = 0; ci < numCands; ci++) {
                 var c = candidates[ci];
                 html += '<th class="kc-comp-cand-header">';
@@ -584,11 +632,9 @@ function klimacheck_shortcode_render( $atts ) {
             }
             html += '</tr></thead><tbody>';
 
-            // One row per question
             for (var qi = 0; qi < totalQ; qi++) {
                 var qObj = questions[qi];
                 var qNum = qObj.number;
-
                 html += '<tr><td class="kc-comp-q-cell"><strong>F' + qNum + ':</strong> ' + esc(qObj.question) + '</td>';
 
                 for (var ci2 = 0; ci2 < numCands; ci2++) {
@@ -596,14 +642,14 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<td class="kc-comp-answer">' +
                         '<span class="' + badgeClass(candResp.answer) + '">' + esc(answerLabel(candResp.answer)) + '</span>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) + '</div>';
+                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) +
+                            '<div class="kc-comp-tooltip">' + esc(candResp.text) + '</div></div>';
                     }
                     html += '</td>';
                 }
                 html += '</tr>';
             }
 
-            // Full statement row
             html += '<tr><td class="kc-comp-q-cell"><strong>Stellungnahme</strong></td>';
             for (var ci3 = 0; ci3 < numCands; ci3++) {
                 var cand = candidates[ci3];
@@ -613,11 +659,74 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<td class="kc-comp-answer"><span class="kc-badge kc-badge-skip">\u2014</span></td>';
                 }
             }
-            html += '</tr>';
+            html += '</tr></tbody></table></div>';
+            return html;
+        }
 
-            html += '</tbody></table></div>';
+        function renderComparisonCards() {
+            var numCands = candidates.length;
+            var html = '<div class="kc-comp-cards">';
 
-            // Navigation back
+            for (var ci = 0; ci < numCands; ci++) {
+                var c = candidates[ci];
+                html += '<div class="kc-comp-card">';
+                html += '<div class="kc-comp-card-header">';
+                if (c.photo_url) {
+                    html += '<img class="kc-comp-card-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '">';
+                } else {
+                    html += '<div class="kc-comp-card-photo-placeholder">\uD83D\uDC64</div>';
+                }
+                html += '<div class="kc-comp-card-info">' +
+                    '<div class="kc-comp-card-name">' + esc(c.name) + '</div>' +
+                    '<div class="kc-comp-card-party">' + esc(c.party) + '</div>' +
+                '</div></div>';
+
+                html += '<div class="kc-comp-card-questions">';
+                for (var qi = 0; qi < totalQ; qi++) {
+                    var qObj = questions[qi];
+                    var qNum = qObj.number;
+                    var candResp = c.responses[qNum] || {answer: '', text: ''};
+                    html += '<div class="kc-comp-card-q">' +
+                        '<div class="kc-comp-card-q-label"><strong>F' + qNum + ':</strong> ' + esc(qObj.question) + '</div>' +
+                        '<div class="kc-comp-card-q-answer">' +
+                            '<span class="' + badgeClass(candResp.answer) + '">' + esc(answerLabel(candResp.answer)) + '</span>' +
+                        '</div>';
+                    if (candResp.text) {
+                        html += '<div class="kc-comp-card-q-text">' + esc(candResp.text) + '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+
+                if (c.full_statement) {
+                    html += '<div class="kc-comp-card-footer">' +
+                        '<button class="kc-comp-statement-btn" data-cand-global-idx="' + ci + '">Ausf\u00fchrliche Stellungnahme lesen \u2192</button>' +
+                    '</div>';
+                }
+
+                html += '</div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function renderComparison() {
+            var html =
+                '<div class="kc-results">' +
+                '<h2>Kandidaten\u00fcbersicht</h2>' +
+                '<p class="kc-results-subtitle">Alle Kandidat:innen und ihre Positionen im direkten Vergleich</p>' +
+                '<div class="kc-view-toggle">' +
+                    '<button id="kc-view-cards" class="' + (compViewMode === 'cards' ? 'active' : '') + '">Karten-Ansicht</button>' +
+                    '<button id="kc-view-table" class="' + (compViewMode === 'table' ? 'active' : '') + '">Tabellen-Ansicht</button>' +
+                '</div>';
+
+            if (compViewMode === 'cards') {
+                html += renderComparisonCards();
+            } else {
+                html += renderComparisonTable();
+            }
+
             var hasAnswered = Object.keys(userAnswers).length > 0;
             html += '<div class="kc-restart" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:20px;">';
             if (hasAnswered) {
@@ -627,6 +736,18 @@ function klimacheck_shortcode_render( $atts ) {
             html += '</div></div>';
 
             app.innerHTML = html;
+
+            // View toggle buttons
+            document.getElementById('kc-view-cards').addEventListener('click', function() {
+                compViewMode = 'cards';
+                renderComparison();
+                app.scrollIntoView({behavior: 'smooth', block: 'start'});
+            });
+            document.getElementById('kc-view-table').addEventListener('click', function() {
+                compViewMode = 'table';
+                renderComparison();
+                app.scrollIntoView({behavior: 'smooth', block: 'start'});
+            });
 
             // Full statement buttons
             var stmtBtns = app.querySelectorAll('.kc-comp-statement-btn');
