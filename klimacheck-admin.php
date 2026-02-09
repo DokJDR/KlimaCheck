@@ -2,7 +2,7 @@
 /**
  * Plugin Name: KlimaCheck Wolfratshausen
  * Description: Admin-Seite zur Verwaltung der KlimaCheck-Kandidatenantworten für Wolfratshausen.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: KlimaCheck Initiative
  * Text Domain: klimacheck
  */
@@ -661,7 +661,6 @@ function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
 /*  Shortcode: [klima_check_wolfratshausen]                            */
 /*  Extracted to klimacheck-shortcode.php for better maintainability   */
 /* ------------------------------------------------------------------ */
-require_once plugin_dir_path( __FILE__ ) . 'klimacheck-shortcode.php';
 
 /** Eigenständige Frontend-Vorschauseite rendern (ohne WP-Admin-Rahmen). */
 function klimacheck_render_review_frontend( $candidate, $questions ) {
