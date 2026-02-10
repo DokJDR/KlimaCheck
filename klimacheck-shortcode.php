@@ -127,7 +127,7 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-result-name{font-size:17px;font-weight:600;color:#111827}
     .kc-result-party{font-size:13px;color:#6b7280}
     .kc-result-score{text-align:center;min-width:100px;flex-shrink:0}
-    .kc-result-pct{font-size:24px;font-weight:700;color:#16a34a}
+    .kc-result-pct{text-align:center;font-size:24px;font-weight:700;color:#16a34a}
     .kc-result-pct-low{color:#d97706}
     .kc-result-pct-vlow{color:#dc2626}
     .kc-result-bar{width:100px;height:8px;background:#e5e7eb;border-radius:9999px;margin-top:6px;overflow:hidden}
