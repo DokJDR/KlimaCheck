@@ -109,6 +109,10 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-intro{text-align:center;padding:30px 0}
     .kc-intro h1{font-size:28px;margin-bottom:12px;color:#111827}
     .kc-intro p{font-size:16px;color:#6b7280;max-width:560px;margin:0 auto 24px}
+    .kc-intro-quote{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;max-width:600px;margin:0 auto 24px;font-size:14px;color:#374151;line-height:1.6;text-align:left}
+    .kc-footer-info{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;max-width:600px;margin:24px auto 0;font-size:12px;color:#6b7280;line-height:1.6;text-align:center}
+    .kc-footer-info a{color:#16a34a;text-decoration:underline}
+    .kc-footer-info a:hover{color:#15803d}
 
     /* Results */
     .kc-results h2{font-size:24px;margin-bottom:6px;text-align:center;color:#111827}
@@ -122,7 +126,7 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-result-info{flex:1;min-width:0}
     .kc-result-name{font-size:17px;font-weight:600;color:#111827}
     .kc-result-party{font-size:13px;color:#6b7280}
-    .kc-result-score{text-align:right}
+    .kc-result-score{text-align:center;min-width:100px;flex-shrink:0}
     .kc-result-pct{font-size:24px;font-weight:700;color:#16a34a}
     .kc-result-pct-low{color:#d97706}
     .kc-result-pct-vlow{color:#dc2626}
@@ -191,12 +195,12 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-modal .kc-modal-body ul,.kc-modal .kc-modal-body ol{margin:0 0 12px 20px;padding:0}
     .kc-modal .kc-modal-body li{margin-bottom:4px}
 
-    /* Comparison: hoverable truncated text */
-    .kc-comp-statement-text{cursor:pointer;transition:all .15s}
-    .kc-comp-statement-text:hover{color:#111827}
+    /* Comparison: hoverable/tappable truncated text */
+    .kc-comp-statement-text[data-fulltext]{cursor:pointer;transition:all .15s;border-bottom:1px dashed #9ca3af}
+    .kc-comp-statement-text[data-fulltext]:hover{color:#111827;border-bottom-color:#111827}
 
     /* Floating tooltip (appended to body via JS) */
-    .kc-floating-tooltip{position:fixed;background:#1d2327;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;width:300px;max-height:260px;overflow-y:auto;z-index:100000;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:left;pointer-events:none;opacity:0;transition:opacity .15s}
+    .kc-floating-tooltip{position:fixed;background:#1d2327;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;width:300px;max-height:260px;overflow-y:auto;z-index:100000;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:left;pointer-events:auto;opacity:0;transition:opacity .15s}
     .kc-floating-tooltip.visible{opacity:1}
 
     /* Kandidatenübersicht: card layout for candidates */
@@ -237,7 +241,7 @@ function klimacheck_shortcode_render( $atts ) {
         .kc-result-rank{font-size:18px;min-width:28px}
         .kc-result-name{font-size:15px}
         .kc-result-party{font-size:12px}
-        .kc-result-score{min-width:60px}
+        .kc-result-score{min-width:70px}
         .kc-result-chevron{font-size:16px}
         .kc-detail-inner{padding:12px 14px}
         .kc-detail-q{padding:10px 0}
@@ -274,38 +278,59 @@ function klimacheck_shortcode_render( $atts ) {
             return d.innerHTML;
         }
 
-        /* Floating tooltip for truncated text */
+        /* Floating tooltip for truncated text (hover on desktop, tap on mobile) */
         var floatingTip = null;
+        function removeFloatingTip() {
+            if (floatingTip) {
+                floatingTip.parentNode.removeChild(floatingTip);
+                floatingTip = null;
+            }
+        }
+        function showFloatingTip(el) {
+            var text = el.getAttribute('data-fulltext');
+            if (!text) return;
+            removeFloatingTip();
+            floatingTip = document.createElement('div');
+            floatingTip.className = 'kc-floating-tooltip';
+            floatingTip.textContent = text;
+            document.body.appendChild(floatingTip);
+            floatingTip.addEventListener('click', function(e) { e.stopPropagation(); });
+            var rect = el.getBoundingClientRect();
+            var tipW = window.innerWidth <= 600 ? 240 : 300;
+            var left = rect.left + rect.width / 2 - tipW / 2;
+            if (left < 8) left = 8;
+            if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+            var top = rect.top - floatingTip.offsetHeight - 8;
+            if (top < 8) top = rect.bottom + 8;
+            floatingTip.style.left = left + 'px';
+            floatingTip.style.top = top + 'px';
+            setTimeout(function() { if (floatingTip) floatingTip.classList.add('visible'); }, 10);
+        }
         function initFloatingTooltips(container) {
             var els = container.querySelectorAll('.kc-comp-statement-text[data-fulltext]');
             for (var i = 0; i < els.length; i++) {
-                els[i].addEventListener('mouseenter', function(e) {
-                    var text = this.getAttribute('data-fulltext');
-                    if (!text) return;
-                    if (floatingTip) floatingTip.parentNode.removeChild(floatingTip);
-                    floatingTip = document.createElement('div');
-                    floatingTip.className = 'kc-floating-tooltip';
-                    floatingTip.textContent = text;
-                    document.body.appendChild(floatingTip);
-                    var rect = this.getBoundingClientRect();
-                    var tipW = 300;
-                    var left = rect.left + rect.width / 2 - tipW / 2;
-                    if (left < 8) left = 8;
-                    if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
-                    var top = rect.top - floatingTip.offsetHeight - 8;
-                    if (top < 8) top = rect.bottom + 8;
-                    floatingTip.style.left = left + 'px';
-                    floatingTip.style.top = top + 'px';
-                    setTimeout(function() { if (floatingTip) floatingTip.classList.add('visible'); }, 10);
+                /* Desktop hover */
+                els[i].addEventListener('mouseenter', function() {
+                    showFloatingTip(this);
                 });
                 els[i].addEventListener('mouseleave', function() {
+                    removeFloatingTip();
+                });
+                /* Mobile tap */
+                els[i].addEventListener('click', function(e) {
+                    e.stopPropagation();
                     if (floatingTip) {
-                        floatingTip.parentNode.removeChild(floatingTip);
-                        floatingTip = null;
+                        removeFloatingTip();
+                    } else {
+                        showFloatingTip(this);
                     }
                 });
             }
         }
+        /* Close tooltip when tapping elsewhere (mobile) - registered once */
+        document.addEventListener('click', function() {
+            removeFloatingTip();
+        });
 
         function answerValue(a) {
             if (a === 'yes') return 1;
@@ -403,11 +428,22 @@ function klimacheck_shortcode_render( $atts ) {
             app.innerHTML =
                 '<div class="kc-intro">' +
                     '<h1>KlimaCheck Wolfratshausen</h1>' +
+                    '<div class="kc-intro-quote">' +
+                        'Ren\u00e9 Beysel, Patrick Lechner, Renato Wittstadt und Manfred Fleischer haben im direkten Gespr\u00e4ch mit uns Klimapolitik in Wolfratshausen diskutiert und die Fragen zum KlimaCheck beantwortet. ' +
+                        'Klaus Heilinglechner und G\u00fcnther Eibl konnten aus Zeitgr\u00fcnden nicht direkt mit uns reden, haben ihre Antworten aber schriftlich gegeben. ' +
+                        'Alle Kandidaten haben ihre Antworten hier autorisiert und wir bedanken uns bei allen f\u00fcr die Kooperation.' +
+                    '</div>' +
                     '<p>Beantworten Sie 10 Fragen und finden Sie heraus, welche Kandidat:innen Ihre klimapolitischen Positionen teilen.</p>' +
                     '<p style="font-size:13px;color:#9ca3af;">Ihre Antworten bleiben auf Ihrem Ger\u00e4t \u2013 es werden keine Daten an einen Server gesendet.</p>' +
                     '<button class="kc-btn kc-btn-primary" id="kc-start">Los geht\u2019s!</button>' +
                     '<br>' +
                     '<button class="kc-btn-link" id="kc-skip-to-detail">Direkt zur Kandidaten\u00fcbersicht (ohne Check)</button>' +
+                    '<div class="kc-footer-info">' +
+                        'Der KlimaCheck Wolfratshausen ist ein Projekt von <strong>Wolfratshausen4Future</strong>. ' +
+                        'Technische Umsetzung als Open-Source-Projekt. ' +
+                        'Quellcode: <a href="https://github.com/DokJDR/KlimaCheck" target="_blank" rel="noopener">github.com/DokJDR/KlimaCheck</a><br>' +
+                        '\u00a9 2026 Wolfratshausen4Future. Alle Rechte vorbehalten.' +
+                    '</div>' +
                 '</div>';
 
             document.getElementById('kc-start').addEventListener('click', function() {
@@ -677,7 +713,8 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<td class="kc-comp-answer">' +
                         '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) + '</div>';
+                        var truncated = candResp.text.length > 80 ? candResp.text.substring(0, 80) + '\u2026' : candResp.text;
+                        html += '<div class="kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(truncated) + '</div>';
                     }
                     html += '</td>';
                 }
@@ -726,7 +763,8 @@ function klimacheck_shortcode_render( $atts ) {
                             '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>' +
                         '</div>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-card-q-text">' + esc(candResp.text) + '</div>';
+                        var truncatedCard = candResp.text.length > 100 ? candResp.text.substring(0, 100) + '\u2026' : candResp.text;
+                        html += '<div class="kc-comp-card-q-text kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(truncatedCard) + '</div>';
                     }
                     html += '</div>';
                 }
