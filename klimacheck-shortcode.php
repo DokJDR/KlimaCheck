@@ -713,8 +713,7 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<td class="kc-comp-answer">' +
                         '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>';
                     if (candResp.text) {
-                        var truncated = candResp.text.length > 80 ? candResp.text.substring(0, 80) + '\u2026' : candResp.text;
-                        html += '<div class="kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(truncated) + '</div>';
+                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) + '</div>';
                     }
                     html += '</td>';
                 }
@@ -763,8 +762,7 @@ function klimacheck_shortcode_render( $atts ) {
                             '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>' +
                         '</div>';
                     if (candResp.text) {
-                        var truncatedCard = candResp.text.length > 100 ? candResp.text.substring(0, 100) + '\u2026' : candResp.text;
-                        html += '<div class="kc-comp-card-q-text kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(truncatedCard) + '</div>';
+                        html += '<div class="kc-comp-card-q-text">' + esc(candResp.text) + '</div>';
                     }
                     html += '</div>';
                 }
