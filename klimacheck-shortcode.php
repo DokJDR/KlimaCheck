@@ -200,7 +200,7 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-comp-statement-text[data-fulltext]:hover{color:#111827;border-bottom-color:#111827}
 
     /* Floating tooltip (appended to body via JS) */
-    .kc-floating-tooltip{position:fixed;background:#1d2327;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;width:300px;max-height:260px;overflow-y:auto;z-index:100000;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:left;pointer-events:auto;opacity:0;transition:opacity .15s}
+    .kc-floating-tooltip{position:fixed;background:#111827;color:#f9fafb;padding:16px 20px;border-radius:10px;font-size:16px;line-height:1.7;width:340px;max-height:300px;overflow-y:auto;z-index:100000;box-shadow:0 10px 30px rgba(0,0,0,.35);text-align:left;pointer-events:auto;opacity:0;transition:opacity .15s;font-weight:400;letter-spacing:.01em}
     .kc-floating-tooltip.visible{opacity:1}
 
     /* Kandidatenübersicht: card layout for candidates */
@@ -248,7 +248,7 @@ function klimacheck_shortcode_render( $atts ) {
         .kc-modal{padding:20px 16px;margin:10px;max-height:90vh}
         .kc-modal h2{font-size:18px}
         .kc-comp-cards{grid-template-columns:1fr}
-        .kc-floating-tooltip{width:240px;font-size:12px}
+        .kc-floating-tooltip{width:280px;font-size:15px;padding:14px 16px}
         .kc-comparison table{min-width:auto}
         .kc-comparison th,.kc-comparison td{padding:8px 6px;font-size:12px}
         .kc-comparison .kc-comp-cand-header{min-width:80px}
@@ -296,7 +296,7 @@ function klimacheck_shortcode_render( $atts ) {
             document.body.appendChild(floatingTip);
             floatingTip.addEventListener('click', function(e) { e.stopPropagation(); });
             var rect = el.getBoundingClientRect();
-            var tipW = window.innerWidth <= 600 ? 240 : 300;
+            var tipW = window.innerWidth <= 600 ? 280 : 340;
             var left = rect.left + rect.width / 2 - tipW / 2;
             if (left < 8) left = 8;
             if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
@@ -713,7 +713,7 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<td class="kc-comp-answer">' +
                         '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) + '</div>';
+                        html += '<div class="kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(candResp.text) + '</div>';
                     }
                     html += '</td>';
                 }
@@ -762,7 +762,7 @@ function klimacheck_shortcode_render( $atts ) {
                             '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>' +
                         '</div>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-card-q-text">' + esc(candResp.text) + '</div>';
+                        html += '<div class="kc-comp-card-q-text kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(candResp.text) + '</div>';
                     }
                     html += '</div>';
                 }
