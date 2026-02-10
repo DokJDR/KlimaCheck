@@ -38,6 +38,8 @@ Ein WordPress-Plugin, das einen **Voting Advice Application (VAA)** bereitstellt
 | Build-Tools | Keine (kein npm, kein Webpack) |
 
 ## Installation
+Entweder über einene Plug-In für  Code Snippets
+oder... 
 
 1. **Plugin-Dateien kopieren** in das WordPress-Plugin-Verzeichnis:
    ```
@@ -92,4 +94,4 @@ Der Übereinstimmungsgrad wird wie folgt berechnet:
 
 ## Lizenz
 
-© 2026 Wolfratshausen4Future. Alle Rechte vorbehalten.
+Open Source -  2026 Wolfratshausen4Future. Alle Rechte vorbehalten.
