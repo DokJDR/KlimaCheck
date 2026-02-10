@@ -173,7 +173,7 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-comparison .kc-comp-cand-name{font-weight:600;font-size:13px;color:#111827;word-wrap:break-word;overflow-wrap:break-word}
     .kc-comparison .kc-comp-cand-party{font-size:11px;color:#6b7280}
     .kc-comparison .kc-comp-answer{font-size:12px}
-    .kc-comparison .kc-comp-statement-text{font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+    .kc-comparison .kc-comp-statement-text{font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4}
     .kc-comp-statement-btn{display:inline-block;margin-top:8px;font-size:13px;color:#16a34a;cursor:pointer;text-decoration:underline;font-weight:500;background:none;border:none;padding:0}
     .kc-comp-statement-btn:hover{color:#15803d}
 
@@ -675,9 +675,9 @@ function klimacheck_shortcode_render( $atts ) {
                 for (var ci2 = 0; ci2 < numCands; ci2++) {
                     var candResp = candidates[ci2].responses[qNum] || {answer: '', text: ''};
                     html += '<td class="kc-comp-answer">' +
-                        '<span class="' + badgeClass(candResp.answer) + '">' + esc(answerLabel(candResp.answer)) + '</span>';
+                        '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>';
                     if (candResp.text) {
-                        html += '<div class="kc-comp-statement-text" data-fulltext="' + esc(candResp.text).replace(/"/g, '&quot;') + '">' + esc(candResp.text) + '</div>';
+                        html += '<div class="kc-comp-statement-text">' + esc(candResp.text) + '</div>';
                     }
                     html += '</td>';
                 }
@@ -723,7 +723,7 @@ function klimacheck_shortcode_render( $atts ) {
                     html += '<div class="kc-comp-card-q">' +
                         '<div class="kc-comp-card-q-label"><strong>F' + qNum + ':</strong> ' + esc(qObj.question) + '</div>' +
                         '<div class="kc-comp-card-q-answer">' +
-                            '<span class="' + badgeClass(candResp.answer) + '">' + esc(answerLabel(candResp.answer)) + '</span>' +
+                            '<span class="' + badgeClass(candResp.answer) + '">' + esc(candResp.text ? answerLabelLong(candResp.answer) : answerLabel(candResp.answer)) + '</span>' +
                         '</div>';
                     if (candResp.text) {
                         html += '<div class="kc-comp-card-q-text">' + esc(candResp.text) + '</div>';
