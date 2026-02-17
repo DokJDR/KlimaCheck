@@ -107,11 +107,11 @@ function klimacheck_shortcode_render( $atts ) {
     .kc-btn-link:hover{color:#15803d}
 
     /* Intro */
-    .kc-intro{text-align:center;padding:30px 0}
-    .kc-intro h1{font-size:28px;margin-bottom:12px;color:#111827}
+    .kc-intro{text-align:center;padding:10px 0}
+    .kc-intro h1{font-size:26px;margin-bottom:12px;color:#111827}
     .kc-intro p{font-size:16px;color:#6b7280;max-width:560px;margin:0 auto 24px}
-    .kc-intro-quote{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;max-width:600px;margin:0 auto 24px;font-size:14px;color:#374151;line-height:1.6;text-align:left}
-    .kc-footer-info{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;max-width:600px;margin:24px auto 0;font-size:12px;color:#6b7280;line-height:1.6;text-align:center}
+    .kc-intro-quote{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 10px;max-width:700px;margin:0 auto 24px;font-size:16px;color:#202020;line-height:1.6;text-align:left}
+    .kc-footer-info{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 10px;max-width:700px;margin:24px auto 0;font-size:12px;color:#6b7280;line-height:1.6;text-align:center}
     .kc-footer-info a{color:#16a34a;text-decoration:underline}
     .kc-footer-info a:hover{color:#15803d}
 
@@ -236,7 +236,7 @@ function klimacheck_shortcode_render( $atts ) {
         .kc-nav{flex-direction:column}
         .kc-btn{width:100%;text-align:center}
         .kc-intro h1{font-size:22px}
-        .kc-intro p{font-size:14px}
+        .kc-intro p{font-size:16px}
         .kc-card h2{font-size:17px}
         .kc-results h2{font-size:20px}
         .kc-result-rank{font-size:18px;min-width:28px}
@@ -426,22 +426,30 @@ function klimacheck_shortcode_render( $atts ) {
 
         /* ── Render: Intro ── */
         function renderIntro() {
+            var introQuoteText = '<p>Wer wird das nächste Stadtoberhaupt von Wolfratshausen und wie ernst meinen es die Kandidaten mit dem Klimaschutz? Die Bürgermeisterwahl entscheidet darüber, ob unsere Flößerstadt bei der Energiewende, dem Ausbau von Photovoltaik und der Wärmewende den Turbo einlegt.</p> <p>René Beysel, Patrick Lechner, Renato Wittstadt und Manfred Fleischer haben im direkten Gespräch mit uns Klimapolitik in Wolfratshausen diskutiert und die Fragen zum KlimaCheck beantwortet. Klaus Heilinglechner und Günther Eibl konnten aus Zeitgründen nicht direkt mit uns reden, haben ihre Antworten aber schriftlich gegeben. </p><p>Alle Kandidaten haben ihre Antworten hier autorisiert und wir bedanken uns bei allen für die Kooperation. Es lohnt sich auch die ausführlichen Stellungsnahmen der Kandidaten zu lesen.</p>';
+            var introQuoteMaxChars = 148;
+            var introQuoteTextOnlyEl = document.createElement('div');
+            introQuoteTextOnlyEl.innerHTML = introQuoteText;
+            var introQuotePlainText = (introQuoteTextOnlyEl.textContent || introQuoteTextOnlyEl.innerText || '').replace(/\s+/g, ' ').trim();
+            var introQuoteShortText = introQuotePlainText.length > introQuoteMaxChars ? introQuotePlainText.slice(0, introQuoteMaxChars) + '...  ' : introQuotePlainText;
+            var introQuoteHasToggle = introQuotePlainText.length > introQuoteMaxChars;
+
             app.innerHTML =
                 '<div class="kc-intro">' +
-                    '<h1>KlimaCheck Wolfratshausen</h1>' +
+                    '<h1>Die Bürgermeister-Kandidaten im Gespräch</h1>' +
                     '<div class="kc-intro-quote">' +
-                        'Ren\u00e9 Beysel, Patrick Lechner, Renato Wittstadt und Manfred Fleischer haben im direkten Gespr\u00e4ch mit uns Klimapolitik in Wolfratshausen diskutiert und die Fragen zum KlimaCheck beantwortet. ' +
-                        'Klaus Heilinglechner und G\u00fcnther Eibl konnten aus Zeitgr\u00fcnden nicht direkt mit uns reden, haben ihre Antworten aber schriftlich gegeben. ' +
-                        'Alle Kandidaten haben ihre Antworten hier autorisiert und wir bedanken uns bei allen f\u00fcr die Kooperation.' +
+                        '<span id="kc-intro-quote-text">' + (introQuoteHasToggle ? esc(introQuoteShortText) : introQuoteText) + '</span>' +
+                        (introQuoteHasToggle ? ' <button type="button" class="kc-btn-link" id="kc-intro-quote-toggle" style="padding:0;">Mehr lesen</button>' : '') +
                     '</div>' +
-                    '<p>Beantworten Sie 10 Fragen und finden Sie heraus, welche Kandidat:innen Ihre klimapolitischen Positionen teilen.</p>' +
+                    '<h1>KlimaCheck Wolfratshausen</h1>' +
+                    '<p>Beantworten Sie 10 Fragen und finden Sie heraus, welche Kandidaten Ihre klimapolitischen Positionen teilen.</p>' +
                     '<p style="font-size:13px;color:#9ca3af;">Ihre Antworten bleiben auf Ihrem Ger\u00e4t \u2013 es werden keine Daten an einen Server gesendet.</p>' +
                     '<button class="kc-btn kc-btn-primary" id="kc-start">Los geht\u2019s!</button>' +
                     '<br>' +
                     '<button class="kc-btn-link" id="kc-skip-to-detail">Direkt zur Kandidaten\u00fcbersicht (ohne Check)</button>' +
                     '<div class="kc-footer-info">' +
-                        'Der KlimaCheck Wolfratshausen ist ein Projekt von <strong>Wolfratshausen4Future</strong>. ' +
-                        'Technische Umsetzung als Open-Source-Projekt. ' +
+                        'Der KlimaCheck Wolfratshausen ist ein Projekt von <strong>Wolfratshausen For Future</strong>. ' +
+                        'Technische Umsetzung als Open-Source-Projekt durch Jan Reiners. ' +
                         'Quellcode: <a href="https://github.com/DokJDR/KlimaCheck" target="_blank" rel="noopener">github.com/DokJDR/KlimaCheck</a><br>' +
                         '\u00a9 2026 Wolfratshausen4Future. Alle Rechte vorbehalten.' +
                     '</div>' +
@@ -457,6 +465,22 @@ function klimacheck_shortcode_render( $atts ) {
                 render();
                 app.scrollIntoView({behavior: 'smooth', block: 'start'});
             });
+
+            if (introQuoteHasToggle) {
+                var quoteTextEl = document.getElementById('kc-intro-quote-text');
+                var quoteToggleEl = document.getElementById('kc-intro-quote-toggle');
+                var quoteExpanded = false;
+
+                quoteToggleEl.addEventListener('click', function() {
+                    quoteExpanded = !quoteExpanded;
+                    if (quoteExpanded) {
+                        quoteTextEl.innerHTML = introQuoteText;
+                    } else {
+                        quoteTextEl.textContent = introQuoteShortText;
+                    }
+                    quoteToggleEl.textContent = quoteExpanded ? 'Weniger anzeigen' : 'Mehr lesen';
+                });
+            }
         }
 
         /* ── Render: Question ── */
@@ -471,7 +495,7 @@ function klimacheck_shortcode_render( $atts ) {
                 '<div class="kc-progress-text">Frage ' + (currentQ + 1) + ' von ' + totalQ + '</div>' +
                 '<div class="kc-card">' +
                     '<h2>F' + qNum + ': ' + esc(q.question) + '</h2>' +
-                    (q.why ? '<div class="kc-why">Warum ist das wichtig? ' + esc(q.why) + '</div>' : '') +
+                    (q.why ? '<div class="kc-why">Warum ist das wichtig? <br>' + esc(q.why) + '</div>' : '') +
                     '<div class="kc-options">' +
                         '<label class="kc-option' + (selected === 'yes' ? ' selected' : '') + '">' +
                             '<input type="radio" name="kc-answer" value="yes"' + (selected === 'yes' ? ' checked' : '') + '> Ja' +
@@ -552,7 +576,7 @@ function klimacheck_shortcode_render( $atts ) {
             var html =
                 '<div class="kc-results">' +
                 '<h2>Ihr Ergebnis</h2>' +
-                '<p class="kc-results-subtitle">So stimmen die Kandidat:innen mit Ihren Positionen \u00fcberein:</p>';
+                '<p class="kc-results-subtitle">So stimmen die Kandidaten mit Ihren Positionen \u00fcberein:</p>';
 
             for (var i = 0; i < results.length; i++) {
                 var r = results[i];
@@ -630,7 +654,7 @@ function klimacheck_shortcode_render( $atts ) {
             html +=
                 '<div class="kc-restart" style="display:flex;flex-direction:column;align-items:center;gap:8px;">' +
                     '<button class="kc-btn kc-btn-secondary" id="kc-restart">Nochmal starten</button>' +
-                    '<button class="kc-btn-link" id="kc-to-detail">Alle Kandidat:innen im \u00dcberblick vergleichen</button>' +
+                    '<button class="kc-btn-link" id="kc-to-detail">Alle Kandidaten im \u00dcberblick vergleichen</button>' +
                 '</div>' +
                 '<p class="kc-privacy">\uD83D\uDD12 Alle Berechnungen finden ausschlie\u00dflich in Ihrem Browser statt. Es wurden keine Daten an einen Server gesendet.</p>' +
                 '</div>';
