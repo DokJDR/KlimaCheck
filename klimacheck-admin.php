@@ -246,7 +246,7 @@ function klimacheck_page_overview() {
                         <tr>
                             <td>
                                 <?php if ( ! empty( $c['photo_url'] ) ) : ?>
-                                    <img src="<?php echo esc_url( $c['photo_url'] ); ?>" alt="<?php echo esc_attr( $c['name'] ); ?>" class="klimacheck-candidate-photo" />
+                                    <img src="<?php echo esc_url( $c['photo_url'] ); ?>" alt="<?php echo esc_attr( $c['name'] ); ?>" class="klimacheck-candidate-photo" <?php if ( ! empty( $c['photo_description'] ) ) : ?>title="<?php echo esc_attr( $c['photo_description'] ); ?>"<?php endif; ?> />
                                 <?php endif; ?>
                                 <?php echo esc_html( $c['name'] ); ?>
                             </td>
@@ -363,17 +363,19 @@ function klimacheck_page_candidate() {
     $candidate_id = isset( $_GET['candidate_id'] ) ? sanitize_text_field( $_GET['candidate_id'] ) : '';
     $is_edit     = $candidate_id && isset( $data['candidates'][ $candidate_id ] );
     $candidate   = $is_edit ? $data['candidates'][ $candidate_id ] : array(
-        'name'           => '',
-        'party'          => '',
-        'photo_url'      => '',
-        'full_statement' => '',
-        'responses'      => array(),
-        'token'          => klimacheck_generate_token(),
+        'name'              => '',
+        'party'             => '',
+        'photo_url'         => '',
+        'photo_description' => '',
+        'full_statement'    => '',
+        'responses'         => array(),
+        'token'             => klimacheck_generate_token(),
     );
 
     // Ensure fields exist for older candidates.
-    if ( ! isset( $candidate['photo_url'] ) )      $candidate['photo_url'] = '';
-    if ( ! isset( $candidate['full_statement'] ) )  $candidate['full_statement'] = '';
+    if ( ! isset( $candidate['photo_url'] ) )         $candidate['photo_url'] = '';
+    if ( ! isset( $candidate['photo_description'] ) )  $candidate['photo_description'] = '';
+    if ( ! isset( $candidate['full_statement'] ) )     $candidate['full_statement'] = '';
 
     $errors = array();
 
@@ -385,8 +387,9 @@ function klimacheck_page_candidate() {
 
         $candidate['name']           = sanitize_text_field( $_POST['candidate_name'] ?? '' );
         $candidate['party']          = sanitize_text_field( $_POST['candidate_party'] ?? '' );
-        $candidate['photo_url']      = esc_url_raw( $_POST['candidate_photo_url'] ?? '' );
-        $candidate['full_statement'] = wp_kses_post( $_POST['candidate_full_statement'] ?? '' );
+        $candidate['photo_url']         = esc_url_raw( $_POST['candidate_photo_url'] ?? '' );
+        $candidate['photo_description'] = sanitize_text_field( $_POST['candidate_photo_description'] ?? '' );
+        $candidate['full_statement']    = wp_kses_post( $_POST['candidate_full_statement'] ?? '' );
 
         if ( empty( $candidate['name'] ) ) {
             $errors[] = 'Der Name des Kandidaten ist erforderlich.';
@@ -459,8 +462,15 @@ function klimacheck_page_candidate() {
                         <input type="url" id="candidate_photo_url" name="candidate_photo_url" value="<?php echo esc_attr( $candidate['photo_url'] ); ?>" class="regular-text" placeholder="https://beispiel.de/foto.jpg" />
                         <p class="description">URL zu einem Kandidatenfoto (optional).</p>
                         <?php if ( ! empty( $candidate['photo_url'] ) ) : ?>
-                            <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="Kandidatenfoto" class="klimacheck-candidate-photo-preview" />
+                            <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="Kandidatenfoto" class="klimacheck-candidate-photo-preview" <?php if ( ! empty( $candidate['photo_description'] ) ) : ?>title="<?php echo esc_attr( $candidate['photo_description'] ); ?>"<?php endif; ?> />
                         <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="candidate_photo_description">Fotobeschreibung / Credits</label></th>
+                    <td>
+                        <input type="text" id="candidate_photo_description" name="candidate_photo_description" value="<?php echo esc_attr( $candidate['photo_description'] ); ?>" class="regular-text" placeholder="z.B. Foto: Max Mustermann" />
+                        <p class="description">Wird als Tooltip angezeigt, wenn die Maus über das Foto bewegt wird (optional).</p>
                     </td>
                 </tr>
             </table>
@@ -603,7 +613,7 @@ function klimacheck_render_review( $candidate, $questions, $is_admin = false ) {
     <div class="<?php echo esc_attr( $wrap_class ); ?>">
         <h1>
             <?php if ( ! empty( $candidate['photo_url'] ) ) : ?>
-                <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="<?php echo esc_attr( $candidate['name'] ); ?>" style="max-width:60px;max-height:60px;border-radius:4px;vertical-align:middle;margin-right:10px;" />
+                <img src="<?php echo esc_url( $candidate['photo_url'] ); ?>" alt="<?php echo esc_attr( $candidate['name'] ); ?>" style="max-width:60px;max-height:60px;border-radius:4px;vertical-align:middle;margin-right:10px;" <?php if ( ! empty( $candidate['photo_description'] ) ) : ?>title="<?php echo esc_attr( $candidate['photo_description'] ); ?>"<?php endif; ?> />
             <?php endif; ?>
             KlimaCheck &mdash; Vorschau für <?php echo esc_html( $candidate['name'] ); ?>
         </h1>
