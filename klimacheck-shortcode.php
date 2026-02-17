@@ -33,11 +33,12 @@ function klimacheck_shortcode_render( $atts ) {
         }
 
         $cand = array(
-            'name'           => $c['name'],
-            'party'          => $c['party'],
-            'photo_url'      => isset( $c['photo_url'] ) ? $c['photo_url'] : '',
-            'full_statement' => isset( $c['full_statement'] ) ? wp_kses_post( $c['full_statement'] ) : '',
-            'responses'      => array(),
+            'name'              => $c['name'],
+            'party'             => $c['party'],
+            'photo_url'         => isset( $c['photo_url'] ) ? $c['photo_url'] : '',
+            'photo_description' => isset( $c['photo_description'] ) ? $c['photo_description'] : '',
+            'full_statement'    => isset( $c['full_statement'] ) ? wp_kses_post( $c['full_statement'] ) : '',
+            'responses'         => array(),
         );
         for ( $q = 1; $q <= 10; $q++ ) {
             $resp = isset( $c['responses'][ $q ] ) ? $c['responses'][ $q ] : array( 'answer' => '', 'text' => '' );
@@ -567,7 +568,7 @@ function klimacheck_shortcode_render( $atts ) {
                             '<div class="kc-result-rank">' + (i + 1) + '.</div>';
 
                 if (c.photo_url) {
-                    html += '<img class="kc-result-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '">';
+                    html += '<img class="kc-result-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '"' + (c.photo_description ? ' title="' + esc(c.photo_description).replace(/"/g, '&quot;') + '"' : '') + '>';
                 } else {
                     html += '<div class="kc-result-photo-placeholder">\uD83D\uDC64</div>';
                 }
@@ -693,7 +694,7 @@ function klimacheck_shortcode_render( $atts ) {
                 var c = candidates[ci];
                 html += '<th class="kc-comp-cand-header">';
                 if (c.photo_url) {
-                    html += '<img class="kc-comp-cand-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '">';
+                    html += '<img class="kc-comp-cand-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '"' + (c.photo_description ? ' title="' + esc(c.photo_description).replace(/"/g, '&quot;') + '"' : '') + '>';
                 } else {
                     html += '<div class="kc-comp-cand-photo-placeholder">\uD83D\uDC64</div>';
                 }
@@ -742,7 +743,7 @@ function klimacheck_shortcode_render( $atts ) {
                 html += '<div class="kc-comp-card">';
                 html += '<div class="kc-comp-card-header">';
                 if (c.photo_url) {
-                    html += '<img class="kc-comp-card-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '">';
+                    html += '<img class="kc-comp-card-photo" src="' + esc(c.photo_url) + '" alt="' + esc(c.name) + '"' + (c.photo_description ? ' title="' + esc(c.photo_description).replace(/"/g, '&quot;') + '"' : '') + '>';
                 } else {
                     html += '<div class="kc-comp-card-photo-placeholder">\uD83D\uDC64</div>';
                 }
